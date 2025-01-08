@@ -4,6 +4,7 @@ import sys
 from tqdm import tqdm
 
 from blingapi.nfes import *
+from blingapi.logistica import *
 
 from hostgatorapi.orders import *
 
@@ -197,3 +198,297 @@ if __name__ == "__main__":
         ),
         axis=1,
     )
+
+    detalhes_nfes = expandir_dicionario_para_colunas_tratado(detalhes_nfes, "volumes")
+
+    detalhes_nfes = expandir_dicionario_para_colunas_tratado(
+        detalhes_nfes, "volumes_bling_volumes"
+    )
+
+    detalhes_nfes = expandir_dicionario_para_colunas_tratado(
+        detalhes_nfes, "volumes_bling_transporte"
+    )
+
+    detalhes_nfes = expandir_dicionario_para_colunas_tratado(
+        detalhes_nfes, "volumes_bling_transporte_transportador"
+    )
+
+    total_pedidos = len(
+        detalhes_nfes[
+            detalhes_nfes["volumes_bling_transporte_transportador_nome"]
+            == "TEX COURIER S.A"
+        ]
+    )
+
+    print(f"São {total_pedidos} para processar.")
+
+    df_de_pedidos_ttex = detalhes_nfes[
+        detalhes_nfes["volumes_bling_transporte_transportador_nome"]
+        == "TEX COURIER S.A"
+    ]
+
+    lista_de_pedidos_ttex = df_de_pedidos_ttex["volumes_bling_lista_de_volumes"].sum()
+
+    df_detalhes_objetos_nfes = obter_detalhes_objetos_logistica(
+        lista_de_pedidos_ttex, access_token=access_token
+    )
+
+    df_detalhes_objetos_nfes = pd.DataFrame(df_detalhes_objetos_nfes)
+
+    df_detalhes_objetos_nfes = expandir_dicionario_para_colunas(
+        df_detalhes_objetos_nfes, "dimensao"
+    )
+
+    df_detalhes_objetos_nfes = expandir_dicionario_para_colunas(
+        df_detalhes_objetos_nfes, "notaFiscal"
+    )
+
+    df_detalhes_objetos_nfes = df_detalhes_objetos_nfes.set_index("notaFiscal_id")
+
+    df_de_pedidos_ttex["bling_id"] = df_de_pedidos_ttex["bling_id"].astype("Int64")
+
+    df_de_pedidos_ttex = df_de_pedidos_ttex.set_index("bling_id")
+
+    df_notas_fiscais_com_detalhes = df_detalhes_objetos_nfes.join(
+        df_de_pedidos_ttex, lsuffix="details_", rsuffix="nfes_"
+    )
+
+    df_notas_fiscais_com_detalhes["bling_numero"] = df_notas_fiscais_com_detalhes[
+        "bling_numero"
+    ].astype("Int64")
+
+    df_notas_fiscais_com_detalhes = df_notas_fiscais_com_detalhes.set_index(
+        "bling_numero"
+    )
+
+    ans = input(
+        f'Deseja salvar as informações de nota fiscal agora? Digite "s" para salvar. Sua resposta é: '
+    )
+    if ans == "s":
+        df_notas_fiscais_com_detalhes.to_csv(
+            f"Dados Bling NFes - de {data_inicial} a {data_final}.csv"
+        )
+
+    df_notas_fiscais_com_detalhes["bling_endereco_cep_tratado"] = (
+        df_notas_fiscais_com_detalhes["bling_endereco_cep"].str.replace(
+            r"[.\-]", "", regex=True
+        )
+    )
+
+    cobranca = str(input("Digite o nome do arquivo de cobranca"))
+
+    dados = pd.read_csv(f"./data/{cobranca}.csv", sep=";", encoding="unicode_escape")
+
+    dados = dados[
+        [
+            "CTe",
+            "AWB",
+            "Nota Fiscal",
+            "Cidade",
+            "CEP",
+            "UF",
+            "ROTA",
+            "Data Encomenda",
+            "Data Faturamento",
+            "Peso",
+            "Valor NF",
+            "Tipo Servico",
+            "Tipo do Frete",
+            "VL COD",
+            "Valor Postagem",
+            "Seguro",
+            "Gris",
+            "Frete",
+            "Desconto Frete",
+            "Outros",
+            "ICMS",
+            "%ICMS",
+            "Frete Valor c/ ICMS",
+            " Frete c/ ICMS",
+            "%Outros C/ ICMS",
+            "Total Servico",
+            "Download Xml CTe",
+        ]
+    ]
+
+    dados = dados[~dados["Nota Fiscal"].isna()]
+
+    dados["Nota Fiscal"] = dados["Nota Fiscal"].astype(int).copy()
+    dados = dados.set_index("Nota Fiscal")
+
+    lista_de_pedidos = "Hostgator - Últimos 5000 pedidos.csv"
+
+    pedidos_de_venda = pd.read_csv(f"{lista_de_pedidos}.csv")
+    pedidos_de_venda = pedidos_de_venda.drop("Unnamed: 0", axis=1)
+    pedidos_de_venda["Item"] = pedidos_de_venda["Item"].apply(converter_lista)
+
+    pedidos_de_venda_nao_nulos = pedidos_de_venda[
+        pedidos_de_venda["Wspedido.nota_fiscal"].notna()
+    ]
+    pedidos_de_venda_nulos = pedidos_de_venda[
+        ~pedidos_de_venda["Wspedido.nota_fiscal"].notna()
+    ]
+
+    print(
+        f"São {len(pedidos_de_venda_nao_nulos)} pedidos não nulos e {len(pedidos_de_venda_nulos)} nulos."
+    )
+
+    pedidos_de_venda_nao_nulos["Wspedido.nota_fiscal"] = (
+        pedidos_de_venda_nao_nulos["Wspedido.nota_fiscal"].astype(int).copy()
+    )
+    pedidos_de_venda_nao_nulos = pedidos_de_venda_nao_nulos.set_index(
+        "Wspedido.nota_fiscal"
+    )
+
+    teste = dados.join(
+        pedidos_de_venda_nao_nulos, how="left", lsuffix="ttex_", rsuffix="painel_"
+    )
+
+    teste = teste.join(
+        df_notas_fiscais_com_detalhes, lsuffix="ttex_painel_", rsuffix="bling_"
+    )
+
+    # Aplicar a correção nas colunas 'Peso' e 'Wspedido.total_peso'
+    cols_to_fix_with_numbers_greater_than_one = ["Wspedido.total_peso"]
+    for col in cols_to_fix_with_numbers_greater_than_one:
+        teste[col] = teste[col].apply(corrigir_separadores)
+
+    # Substituir separadores de milhar e decimal nas colunas 'Peso' e 'Wspedido.total_peso'
+    cols_to_fix = ["Peso", "Total Servico", "Valor NF"]
+
+    for col in cols_to_fix:
+        teste[col] = (
+            teste[col]
+            .astype(str)  # Garantir que os valores sejam strings para a substituição
+            .str.replace(
+                ".", "", regex=False
+            )  # Remover pontos como separadores de milhar
+            .str.replace(
+                ",", ".", regex=False
+            )  # Substituir vírgulas pelo ponto decimal
+        )
+
+    cols_to_fix_just_the_separator = [
+        "Frete",
+    ]
+
+    for col in cols_to_fix_just_the_separator:
+        teste[col] = teste[col].astype(str).str.replace(",", ".", regex=False)
+
+    # Converter as colunas para float
+    teste[cols_to_fix] = teste[cols_to_fix].apply(pd.to_numeric, errors="coerce")
+
+    # Garantir que a coluna 'CEP' permaneça como string
+    teste["CEP"] = teste["CEP"].astype(str)
+
+    # Aplicar os métodos apenas em valores válidos
+    teste["peso_caixa"] = teste["Wspedido.total_peso"].apply(
+        lambda x: adicionar_peso_caixa(x) if pd.notna(x) else np.nan
+    )
+    teste["peso_cubado"] = teste["Wspedido.total_peso"].apply(
+        lambda x: calcular_peso_cubado(x) if pd.notna(x) else np.nan
+    )
+
+    # Calcular 'peso_calculado'
+    teste["peso_calculado"] = teste["Wspedido.total_peso"] + teste["peso_caixa"]
+
+    # Calcular a diferença absoluta
+    teste["diff_pesos_absoluta"] = teste["Peso"] - teste["peso_calculado"]
+
+    # Calcular a diferença percentual com tratamento para divisão por zero
+    teste["diff_pesos_percentual"] = np.where(
+        teste["peso_calculado"] != 0,
+        teste["Peso"] / teste["peso_calculado"] - 1,
+        np.nan,
+    )
+
+    # Cálculo da diferença de peso absoluta e relativa
+    teste["diff_pesos_absoluta"] = teste["Peso"] - teste["peso_calculado"]
+    teste["diff_pesos_percentual"] = teste["Peso"] / teste["peso_calculado"]
+
+    # Implementação da validação entre peso real e peso cubico
+    teste["escolha_metodo_pesagem"] = (
+        teste[["peso_calculado", "peso_cubado"]]
+        .copy()
+        .apply(escolha_metodo_pesagem, axis=1)
+    )
+
+    # Sorteando
+    teste = teste.sort_values(["diff_pesos_percentual"], ascending=False)
+    teste["categoria_peso"] = teste["peso_calculado"].apply(intervalo_peso)
+    teste["categoria_peso"] = teste["categoria_peso"].astype("Int64")
+
+    file = f"./Tabela de Preços.xlsx"
+
+    tabela_de_precos = pd.read_excel(
+        file, sheet_name="Tabela_Unificada", usecols="B:EJ", header=8, nrows=35
+    )
+
+    file = f"./abrangência.xlsx"
+
+    abrangencia = pd.read_excel(
+        file,
+        usecols="B:L",
+        header=5,
+        dtype={"CEP Inicial": object, "CEP Final": object},
+    )
+    abrangencia["CEP Inicial"] = abrangencia["CEP Inicial"].astype("Float64")
+    abrangencia["CEP Inicial"] = abrangencia["CEP Inicial"].astype("Int64")
+    abrangencia["CEP Final"] = abrangencia["CEP Final"].astype("Float64")
+    abrangencia["CEP Final"] = abrangencia["CEP Final"].astype("Int64")
+
+    teste["bling_endereco_cep"] = teste["bling_endereco_cep"].astype("str")
+
+    teste["CEP_3"] = teste["bling_endereco_cep"].apply(get_cep_number)
+    teste["CEP_3"] = teste["CEP_3"].astype("Float64")
+    teste["CEP_3"] = teste["CEP_3"].astype("Int64")
+
+    teste["CEP"] = teste["CEP"].astype("Float64")
+    teste["CEP"] = teste["CEP"].astype("Int64")
+
+    df_b = abrangencia.copy()
+    df_b = df_b.dropna()
+    df_a = teste
+    # Preenchendo valores nulos com um valor específico
+    fill_value = pd.NA
+    df_b.fillna(fill_value, inplace=True)
+
+    # Transformando o índice em uma tupla de intervalo de CEP
+    df_b.index = pd.IntervalIndex.from_tuples(
+        list(zip(df_b["CEP Inicial"], df_b["CEP Final"])), closed="both"
+    )
+
+    # Aplicando a função em cada valor da coluna 'CEP' do DataFrame 'A'
+    df_a["Geografia Comercial"] = df_a["CEP_3"].apply(
+        lambda x: encontrar_geografia_comercial(x, df_b)
+    )
+
+    # Especificando as colunas de interesse na origem
+    colunas_interesse = ["Geografia Comercial", "Risco", "Prazo"]
+
+    # Especificando o Nome das colunas no destino
+    novos_nomes_colunas = [
+        "Geografia_Comercial_tbAbran",
+        "Risco_tbAbran",
+        "Prazo_tbAbran",
+    ]
+
+    df_a[novos_nomes_colunas] = (
+        df_a["CEP_3"]
+        .apply(
+            lambda x: pd.Series(
+                encontrar_informacoes_tabela_abrangencia(x, df_b, colunas_interesse)
+            )
+        )
+        .rename(columns=dict(zip(colunas_interesse, novos_nomes_colunas)))
+    )
+
+    # Aplicando a função em cada linha do DataFrame 'A'
+    df_a["frete_peso_calculado"] = df_a.apply(
+        lambda row: consultar_valor_geografia_comercial_metodo_pesagem(
+            row, tabela_de_precos
+        ),
+        axis=1,
+    )
+
+    df_a.to_csv(f"Análise de Pagamento - {cobranca}.csv")
