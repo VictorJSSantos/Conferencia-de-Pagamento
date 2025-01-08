@@ -2,15 +2,16 @@
 
 ## Descrição
 
-Esse projeto tem como objetivo ajudar uma empresa do ramo de moda que está enfrentando problemas em relação aos valores pagos. Hoje não existe um processo facilmente executado que favoreça a verificação e cobrança da empresa parceira sobre qualquer desvio detectado. Portanto, caso algum erro aconteça, se torna muito difícil e faria com que a empresa acabasse tendo que pagar além do previsto em contrato. 
+Esse projeto tem como objetivo ajudar uma empresa do ramo de moda que está enfrentando problemas em relação aos valores pagos em relação a área de Transportes. Hoje não existe um processo facilmente executado que favoreça a verificação e cobrança da empresa parceira sobre qualquer desvio detectado. Portanto, caso algum erro aconteça, se torna muito difícil e faria com que a empresa acabasse tendo que pagar além do previsto em contrato. Além disso, também é uma verificação muito granular, que, manualmente, obriga a verificação de entrega a entrega, o que muitas vezes não é possível devido ao próprio volume de pedidos e de outros processos que precisam ser realizados. 
+
+
+## Objetivos
+
 Desta forma, este projeto inclui:
 * Acessar os serviços da empresa contratante (ERP, Plataforma de Vendas (Site), etc) e fazer a extração das informações necessárias para a conferência, como CEP, peso, entre outras informações;
 * Acessar informações de contrato como tabela de abrangência e tabela de preços fornecidas na assinatura do contrato com o parceiro de transportes;
 * Fornecer uma forma automatizada de realizar essa conferência, fornecendo as informações tratadas e disponibilizadas segundo o processo do parceiro de transporte.
-
-## Objetivos
-
-WIP
+* Fornecer um relatório de cada cobrança com os possíveis desvios e outras informações relativas às entregas;
 
 ## Diretórios do projeto
 
