@@ -25,7 +25,7 @@ WIP
 ## Setup de Ambiente
 
 1. Realize o clone do repositório:
-  > git clone [https://github.com/VictorJSSantos/Bitcoin-Stream-ETL.git](https://github.com/VictorJSSantos/Conferencia-de-Pagamento.git)
+  > git clone [https://github.com/VictorJSSantos/Conferencia-de-Pagamento.git](https://github.com/VictorJSSantos/Conferencia-de-Pagamento.git)
 
 2. Recomendado:: Crie o ambiente virtual: 
   > python -m venv venv
