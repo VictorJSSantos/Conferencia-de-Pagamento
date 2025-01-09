@@ -129,10 +129,10 @@ def encontrar_informacoes_tabela_abrangencia(cep, df_b, cols):
         cols (str or list): Nome da coluna ou lista de colunas a serem retornadas.
 
     Returns:
-        dict or None: Dicionário com as colunas e valores correspondentes, ou None se não encontrado.
+        dict: Dicionário com as colunas e valores correspondentes (ou valores vazios, se não encontrado).
     """
     if pd.isna(cep):
-        return None
+        return {col: None for col in cols}
 
     # Garantir que `cols` seja uma lista para processamento uniforme
     if isinstance(cols, str):
@@ -141,11 +141,10 @@ def encontrar_informacoes_tabela_abrangencia(cep, df_b, cols):
     # Procurar o intervalo correspondente
     for intervalo in df_b.index:
         if intervalo.left <= cep <= intervalo.right:
-            # Retornar os valores das colunas especificadas
             return {col: df_b.at[intervalo, col] for col in cols}
 
-    # Caso nenhum intervalo corresponda
-    return None
+    # Retornar valores vazios caso nenhum intervalo corresponda
+    return {col: None for col in cols}
 
 
 # Função para consultar o valor em df_c com base em 'Geografia Comercial' e 'metodo_pesagem'
@@ -161,3 +160,38 @@ def consultar_valor_geografia_comercial_metodo_pesagem(row, df_c):
         # print(f'metodo_pesagem in df_c.index: {categoria_peso in df_c.index}')
         # print(f'geografia_comercial in df_c.columns: {geografia_comercial in df_c.columns}')
         return None
+
+
+# Aplicando Transformações para Ter custos de GRIS
+def calcular_custo_gris(risco, valor_nf):
+    """
+    Calcula o Custo de GRIS com base no risco e no valor da nota fiscal.
+
+    Args:
+        risco (str): O nível de risco ('Normal', 'Alto Risco', 'Altíssimo Risco').
+        valor_nf (float): O valor da nota fiscal.
+
+    Returns:
+        float: O custo de GRIS calculado.
+    """
+    if pd.isna(valor_nf) or pd.isna(risco):
+        return None
+
+    # Mapeamento de risco para percentuais
+    percentual_gris = {
+        "Padrão": 0.002,  # 0,2%
+        "Alto Risco": 0.01,  # 1%
+        "Altíssimo Risco": 0.02,  # 2%
+    }
+
+    return valor_nf * percentual_gris.get(
+        risco, 0
+    )  # Retorna 0 se o risco não estiver no dicionário
+
+
+def calcular_custo_seguro(valor_nf):
+    if pd.isna(valor_nf):
+        return None
+
+    percentual_seguro = 0.004
+    return percentual_seguro * valor_nf

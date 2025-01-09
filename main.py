@@ -230,7 +230,7 @@ if __name__ == "__main__":
     lista_de_pedidos_ttex = df_de_pedidos_ttex["volumes_bling_lista_de_volumes"].sum()
 
     df_detalhes_objetos_nfes = obter_detalhes_objetos_logistica(
-        lista_de_pedidos_ttex, access_token=access_token
+        lista_de_pedidos_ttex, access_token=ACCESS_TOKEN
     )
 
     df_detalhes_objetos_nfes = pd.DataFrame(df_detalhes_objetos_nfes)
@@ -274,6 +274,10 @@ if __name__ == "__main__":
             r"[.\-]", "", regex=True
         )
     )
+
+    ################################################
+    ############## ADICIONAR ATÈ AQUI ##############
+    ################################################
 
     cobranca = str(input("Digite o nome do arquivo de cobranca"))
 
@@ -491,4 +495,40 @@ if __name__ == "__main__":
         axis=1,
     )
 
-    df_a.to_csv(f"Análise de Pagamento - {cobranca}.csv")
+    df_a["Custo_de_GRIS"] = df_a.apply(
+        lambda row: calcular_custo_gris(
+            row["Risco_tbAbran"], row["volumes_bling_valor_nota_fiscal"]
+        ),
+        axis=1,
+    )
+
+    df_a["Custo_de_Seguro"] = df_a.apply(
+        lambda row: calcular_custo_seguro(row["volumes_bling_valor_nota_fiscal"]),
+        axis=1,
+    )
+
+    arquivo_final = df_a[
+        [
+            "CTe",
+            "AWB",
+            "notaFiscal",
+            "Valor NF",
+            "dimensao_peso",
+            "bling_contato_nome",
+            "Wspedido.entrega_cpfcnpj",
+            "bling_endereco_cidade",
+            "bling_endereco_uf",
+            "bling_endereco_cep",
+            "peso_calculado",
+            "peso_cubado",
+            "frete_peso_calculado",
+            "%ICMS",
+            "Seguro",
+            "Gris",
+            "Risco_tbAbran",
+            "Prazo_tbAbran",
+            "Total Servico",
+        ]
+    ].copy  # Faltou fazer o nosso calculo aqui mas vou jogar no excel
+
+    arquivo_final.to_csv(f"./results/Análise de Pagamento - {cobranca}.csv")

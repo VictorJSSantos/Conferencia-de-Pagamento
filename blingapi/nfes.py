@@ -19,7 +19,7 @@ def obter_detalhe_nfe_por_pedido(id_nota_fiscal=None, **kwargs):
         return None
 
     headers = {
-        "Authorization": f'Bearer {kwargs["ACCESS_TOKEN"]}',
+        "Authorization": f'Bearer {kwargs["access_token"]}',
         "Accept": "application/json",
     }
 

@@ -50,7 +50,7 @@ def get_access_token():
     Obtém o token de acesso diretamente do .env.
     """
     load_dotenv()
-    access_token = os.getenv("ACCESS_TOKEN")
+    access_token = os.getenv("access_token")
     print(f"O get_acess_token deu o token {access_token}")
     if access_token:
         return access_token

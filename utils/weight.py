@@ -52,7 +52,7 @@ def escolha_metodo_pesagem(df):
     :classificacao: Classificação entre peso cubado ou peso real.
     """
     peso = df[0]
-    # peso_cubado = df[1]
+    peso_cubado = df[1]
 
     if peso >= 5:
         return "peso_cubado"
