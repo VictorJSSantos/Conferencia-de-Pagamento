@@ -169,18 +169,17 @@ if __name__ == "__main__":
     ).copy()
 
     lista_de_cobrancas = [
-        "12 2Q - Conf. de Envio",
+        # "12 2Q - Conf. de Envio",
+        "12 1Q - Conf. de Envio",
+        "11 2Q - Conf. de Envio",
+        "11 1Q - Conf. de Envio",
+        "10 2Q - Conf. de Envio",
+        "10 1Q - Conf. de Envio",
+        "09 2Q - Conf. de Envio",
+        "09 1Q - Conf. de Envio",
+        "08 2Q - Conf. de Envio",
+        "08 1Q - Conf. de Envio",
     ]
-    #     "12 1Q - Conf. de Envio",
-    #     "11 2Q - Conf. de Envio",
-    #     "11 1Q - Conf. de Envio",
-    #     "10 2Q - Conf. de Envio",
-    #     "10 1Q - Conf. de Envio",
-    #     "09 2Q - Conf. de Envio",
-    #     "09 1Q - Conf. de Envio",
-    #     "08 2Q - Conf. de Envio",
-    #     "08 1Q - Conf. de Envio",
-    # ]
 
     for cobranca in lista_de_cobrancas:
         # cobranca = str(input("Digite o nome do arquivo de cobranca"))
@@ -224,6 +223,10 @@ if __name__ == "__main__":
         dados = dados[~dados["Nota Fiscal"].isna()]
 
         dados["Nota Fiscal"] = dados["Nota Fiscal"].astype("Int64").copy()
+
+        # Substituir vírgula por ponto e converter para float
+        dados["%ICMS"] = dados["%ICMS"].str.replace(",", ".").astype(float)
+
         dados = dados.set_index("Nota Fiscal")
 
         lista_de_pedidos = (
@@ -428,6 +431,16 @@ if __name__ == "__main__":
             axis=1,
         )
 
+        df_a["Custo Total Calculado"] = df_a.apply(
+            lambda row: calcular_valor_a_ser_pago_total(
+                row["frete_peso_calculado"],
+                row["Custo_de_Seguro"],
+                row["Custo_de_GRIS"],
+                row["%ICMS"],
+            ),
+            axis=1,
+        )
+
         arquivo_final = df_a[
             [
                 "CTe",
@@ -443,14 +456,11 @@ if __name__ == "__main__":
                 "peso_calculado",
                 "peso_cubado",
                 "frete_peso_calculado",
-                "%ICMS",
-                "Seguro",
-                "Gris",
-                "Risco_tbAbran",
-                "Prazo_tbAbran",
+                "Custo Total Calculado",
                 "Total Servico",
+                "Custo_de_Seguro",
+                "Custo_de_GRIS",
             ]
         ].copy()  # Faltou fazer o nosso calculo aqui mas vou jogar no excel
-
-        arquivo_final.to_csv(f"./results/Análise de Pagamento - {cobranca}.csv")
-        df_a.to_csv(f"./results/[Não filtrado] Análise de Pagamento - {cobranca}.csv")
+        arquivo_final = arquivo_final[~arquivo_final["peso_calculado"].isna()]
+        arquivo_final.to_excel(f"./results/Análise de Pagamento - {cobranca}.xlsx")

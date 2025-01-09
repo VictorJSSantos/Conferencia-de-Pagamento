@@ -195,3 +195,13 @@ def calcular_custo_seguro(valor_nf):
 
     percentual_seguro = 0.004
     return percentual_seguro * valor_nf
+
+
+def calcular_valor_a_ser_pago_total(
+    valor_frete_peso, valor_seguro, valor_gris, aliquota_icms
+):
+    total = valor_frete_peso + valor_seguro + valor_gris
+    # aliquota_icms = int(aliquota_icms)
+    aliquota_icms = 1 - (aliquota_icms / 100)
+    total = total / aliquota_icms
+    return total
