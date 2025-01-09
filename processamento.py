@@ -169,14 +169,12 @@ if __name__ == "__main__":
     ).copy()
 
     lista_de_cobrancas = [
-        # "12 2Q - Conf. de Envio",
         "12 1Q - Conf. de Envio",
         "11 2Q - Conf. de Envio",
         "11 1Q - Conf. de Envio",
         "10 2Q - Conf. de Envio",
         "10 1Q - Conf. de Envio",
         "09 2Q - Conf. de Envio",
-        "09 1Q - Conf. de Envio",
         "08 2Q - Conf. de Envio",
         "08 1Q - Conf. de Envio",
     ]
@@ -258,7 +256,6 @@ if __name__ == "__main__":
         teste = dados.join(
             pedidos_de_venda_nao_nulos, how="left", lsuffix="ttex_", rsuffix="painel_"
         )
-        ################################ AVALIAR ##############################
 
         teste = teste.join(
             df_notas_fiscais_com_detalhes, lsuffix="ttex_painel_", rsuffix="bling_"
@@ -300,15 +297,15 @@ if __name__ == "__main__":
         teste["CEP"] = teste["CEP"].astype(str)
 
         # Aplicar os métodos apenas em valores válidos
-        teste["peso_caixa"] = teste["Wspedido.total_peso"].apply(
+        teste["peso_caixa"] = teste["dimensao_peso"].apply(
             lambda x: adicionar_peso_caixa(x) if pd.notna(x) else np.nan
         )
-        teste["peso_cubado"] = teste["Wspedido.total_peso"].apply(
+        teste["peso_cubado"] = teste["dimensao_peso"].apply(
             lambda x: calcular_peso_cubado(x) if pd.notna(x) else np.nan
         )
 
         # Calcular 'peso_calculado'
-        teste["peso_calculado"] = teste["Wspedido.total_peso"] + teste["peso_caixa"]
+        teste["peso_calculado"] = teste["dimensao_peso"] + teste["peso_caixa"]
 
         # Calcular a diferença absoluta
         teste["diff_pesos_absoluta"] = teste["Peso"] - teste["peso_calculado"]
@@ -391,16 +388,6 @@ if __name__ == "__main__":
             "Prazo_tbAbran",
         ]
 
-        # df_a[novos_nomes_colunas] = (
-        #     df_a["CEP_3"]
-        #     .apply(
-        #         lambda x: pd.Series(
-        #             encontrar_informacoes_tabela_abrangencia(x, df_b, colunas_interesse)
-        #         )
-        #     )
-        #     .rename(columns=dict(zip(colunas_interesse, novos_nomes_colunas)))
-        # )
-
         # Aplicar a função e converter o retorno em DataFrame diretamente
         resultados = df_a["CEP_3"].apply(
             lambda x: encontrar_informacoes_tabela_abrangencia(
@@ -445,7 +432,7 @@ if __name__ == "__main__":
             [
                 "CTe",
                 "AWB",
-                "notaFiscal",
+                # "notaFiscal",
                 "Valor NF",
                 "dimensao_peso",
                 "bling_contato_nome",
@@ -458,9 +445,30 @@ if __name__ == "__main__":
                 "frete_peso_calculado",
                 "Custo Total Calculado",
                 "Total Servico",
-                "Custo_de_Seguro",
-                "Custo_de_GRIS",
             ]
         ].copy()  # Faltou fazer o nosso calculo aqui mas vou jogar no excel
-        arquivo_final = arquivo_final[~arquivo_final["peso_calculado"].isna()]
-        arquivo_final.to_excel(f"./results/Análise de Pagamento - {cobranca}.xlsx")
+
+        arquivo_final.rename(
+            columns={
+                "dimensao_peso": "Peso NF",
+                "bling_contato_nome": "Destinatario",
+                "Wspedido.entrega_cpfcnpj": "CPF",
+                "bling_endereco_cidade": "Cidade",
+                "bling_endereco_uf": "UF",
+                "bling_endereco_cep": "CEP",
+                "peso_calculado": "Peso real da mercadoria",
+                "peso_cubado": "Peso cubado da mercadoria",
+                "frete_peso_calculado": "Valor  Frete Peso",
+                "Custo Total Calculado": "Valor Total Servico ( frete peso + imposto + seguros )",
+                "Total Servico": "Valor Total do Serviço cobrado pela Total",
+            },
+            inplace=True,
+        )
+
+        with pd.ExcelWriter(f"./results/Análise - {cobranca}.xlsx") as writer:
+            arquivo_final[~arquivo_final["Peso real da mercadoria"].isna()].to_excel(
+                writer, sheet_name="Pedidos_com_informações_completas"
+            )
+            arquivo_final[arquivo_final["Peso real da mercadoria"].isna()].to_excel(
+                writer, sheet_name="Pedidos_com_informações_incompletas"
+            )

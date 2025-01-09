@@ -182,13 +182,12 @@ if __name__ == "__main__":
     print(nfes_bling)
 
     nfes_bling["bling_data_de_emissao"] = pd.to_datetime(
-        nfes_bling["bling_data_de_emissao"]  # , infer_datetime_format=True
+        nfes_bling["bling_data_de_emissao"]
     )
     nfes_bling["mes_de_emissao_de_nf"] = nfes_bling["bling_data_de_emissao"].dt.month
     nfes_bling["ano_de_emissao_de_nf"] = nfes_bling["bling_data_de_emissao"].dt.year
 
     detalhes_nfes = nfes_bling.copy()
-    # detalhes_nfes = detalhes_nfes[:10]
 
     tqdm.pandas()
 
@@ -198,9 +197,6 @@ if __name__ == "__main__":
         ),
         axis=1,
     )
-    ##########################################################################
-    ####################### ADICIONAR DAQUI ATÈ O PROXIMO BLOCO ##############
-    ##########################################################################
 
     detalhes_nfes = expandir_dicionario_para_colunas_tratado(detalhes_nfes, "volumes")
 
@@ -241,9 +237,6 @@ if __name__ == "__main__":
     df_detalhes_objetos_nfes = expandir_dicionario_para_colunas(
         df_detalhes_objetos_nfes, "dimensao"
     )
-    ##############################################
-    ########## AVALIAR A PARTIR DAQUI ############
-    ##############################################
 
     df_detalhes_objetos_nfes = expandir_dicionario_para_colunas(
         df_detalhes_objetos_nfes, "notaFiscal"
@@ -267,10 +260,6 @@ if __name__ == "__main__":
         "bling_numero"
     )
 
-    ################################################
-    ############## ADICIONAR ATÈ AQUI ##############
-    ################################################
-
     ans = input(
         f'Deseja salvar as informações de nota fiscal agora? Digite "s" para salvar. Sua resposta é: '
     )
@@ -284,6 +273,10 @@ if __name__ == "__main__":
             r"[.\-]", "", regex=True
         )
     )
+
+    #############################################################
+    ############## A PARTIR DAQUI AVALIAR EXCLUSAO ##############
+    #############################################################
 
     cobranca = str(input("Digite o nome do arquivo de cobranca"))
 
