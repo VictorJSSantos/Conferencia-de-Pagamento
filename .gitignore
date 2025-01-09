@@ -4,3 +4,4 @@ venv/
 /old/
 *.csv
 __pycache__/
+/results/
