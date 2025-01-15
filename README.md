@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Esse projeto tem como objetivo ajudar uma empresa do ramo de moda que está enfrentando problemas em relação aos valores pagos em relação a área de Transportes. Hoje não existe um processo facilmente executado que favoreça a verificação e cobrança da empresa parceira sobre qualquer desvio detectado. Portanto, caso algum erro aconteça, se torna muito difícil e faria com que a empresa acabasse tendo que pagar além do previsto em contrato. Além disso, também é uma verificação muito granular, que, manualmente, obriga a verificação de entrega a entrega, o que muitas vezes não é possível devido ao próprio volume de pedidos e de outros processos que precisam ser realizados. 
+Esse projeto tem como objetivo ajudar uma empresa do ramo de moda que está enfrentando problemas na verificação dos valores pagos em relação a área de Transportes. Hoje não existe um processo facilmente executado que favoreça a verificação e cobrança da empresa parceira sobre qualquer desvio detectado. Portanto, caso algum erro na cobrança aconteça, se tornará muito difícil de saber e, caso se concretize, fará com que a empresa acabe tendo que pagar além do previsto em contrato. Além disso, também é uma verificação muito granular, que, manualmente, obriga a verificação de entrega a entrega, o que muitas vezes não é possível devido ao próprio volume de pedidos e de outros processos que precisam ser realizados. 
 
 
 ## Objetivos
