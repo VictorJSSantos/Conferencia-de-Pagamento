@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
             print(f"Access Token: {access_token}")
             print(f"Refresh Token: {refresh_token}")
-            print(f"AGORA VAMOS VER O QUE É {tokens}")
+
             save_tokens(tokens)
         else:
             # Tratamento de erro
