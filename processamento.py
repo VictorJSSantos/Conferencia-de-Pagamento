@@ -169,16 +169,13 @@ if __name__ == "__main__":
     ).copy()
 
     lista_de_cobrancas = [
-        # "12 2Q - Conf. de Envio",
-        # "12 1Q - Conf. de Envio",
+        "12 1Q - Conf. de Envio",
         # "11 2Q - Conf. de Envio",
         # "11 1Q - Conf. de Envio",
         # "10 2Q - Conf. de Envio",
         # "10 1Q - Conf. de Envio",
         # "09 2Q - Conf. de Envio",
-        "09 1Q - Conf. de Envio",
-        # "08 2Q - Conf. de Envio",
-        # "08 1Q - Conf. de Envio",
+        # "09 1Q - Conf. de Envio",
     ]
 
     for cobranca in lista_de_cobrancas:

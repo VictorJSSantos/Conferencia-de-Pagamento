@@ -154,7 +154,10 @@ def consultar_valor_geografia_comercial_metodo_pesagem(row, df_c):
     # print(f'Método de Pesagem: {metodo_pesagem}, Geografia Comercial: {geografia_comercial}')
     if categoria_peso in df_c.index and geografia_comercial in df_c.columns:
         # print(f'Valor encontrado em df_c: {df_c.at[metodo_pesagem, geografia_comercial]}')
-        return df_c.at[categoria_peso, geografia_comercial]
+        return df_c.at[categoria_peso + 1, geografia_comercial]
+    ###########################################################################################
+    ################### AQUI ADICONEI O + 1 PARA VERIFICAR SE A LINHA SE AJEITA ###############
+    ###########################################################################################
     else:
         # print('Valores não encontrados em df_c')
         # print(f'metodo_pesagem in df_c.index: {categoria_peso in df_c.index}')

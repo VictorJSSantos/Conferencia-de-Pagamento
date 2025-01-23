@@ -212,31 +212,33 @@ if __name__ == "__main__":
 
         detalhes_nfes = nfes_bling.copy()
 
-        detalhes_nfes = expandir_dicionario_para_colunas(detalhes_nfes, "volumes")
-
-        detalhes_nfes = expandir_dicionario_para_colunas(
-            detalhes_nfes, "volumes_bling_volumes"
+        detalhes_nfes_tratado = expandir_dicionario_para_colunas(
+            detalhes_nfes, "volumes"
         )
 
-        detalhes_nfes = expandir_dicionario_para_colunas(
-            detalhes_nfes, "volumes_bling_transporte"
+        detalhes_nfes_tratado = expandir_dicionario_para_colunas(
+            detalhes_nfes_tratado, "volumes_bling_volumes"
         )
 
-        detalhes_nfes = expandir_dicionario_para_colunas(
-            detalhes_nfes, "volumes_bling_transporte_transportador"
+        detalhes_nfes_tratado = expandir_dicionario_para_colunas(
+            detalhes_nfes_tratado, "volumes_bling_transporte"
+        )
+
+        detalhes_nfes_tratado = expandir_dicionario_para_colunas(
+            detalhes_nfes_tratado, "volumes_bling_transporte_transportador"
         )
 
         total_pedidos = len(
-            detalhes_nfes[
-                detalhes_nfes["volumes_bling_transporte_transportador_nome"]
+            detalhes_nfes_tratado[
+                detalhes_nfes_tratado["volumes_bling_transporte_transportador_nome"]
                 == "TEX COURIER S.A"
             ]
         )
 
         print(f"São {total_pedidos} para processar.")
 
-        df_de_pedidos_ttex = detalhes_nfes[
-            detalhes_nfes["volumes_bling_transporte_transportador_nome"]
+        df_de_pedidos_ttex = detalhes_nfes_tratado[
+            detalhes_nfes_tratado["volumes_bling_transporte_transportador_nome"]
             == "TEX COURIER S.A"
         ]
 

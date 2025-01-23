@@ -175,7 +175,6 @@ def obter_pedidos_nfes_todas_paginas(limite_por_pagina=100, **kwargs):
                 print(
                     f"Erro na obtenção dos pedidos de vendas da pagina {pagina}. Código de status: {response.status_code}"
                 )
-                # rint(response.text)
                 # return None
 
         # Concatena todos os DataFrames em um único DataFrame
